@@ -1,11 +1,3 @@
-import '@babylonjs/core/Meshes/instancedMesh';
-import '@babylonjs/loaders/glTF';
-
-if (process.env.NODE_ENV == 'development') {
-    import('@babylonjs/core/Debug/debugLayer');
-    import('@babylonjs/inspector');
-}
-
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { Scene } from "@babylonjs/core/scene";
 import { Color3, Color4, Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
@@ -16,6 +8,14 @@ import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { CreatePlane } from '@babylonjs/core/Meshes/Builders/planeBuilder';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { VideoTexture } from '@babylonjs/core/Materials/Textures/videoTexture';
+
+if (process.env.NODE_ENV == 'development') {
+    import('@babylonjs/core/Debug/debugLayer');
+    import('@babylonjs/inspector');
+}
+
+import '@babylonjs/core/Meshes/instancedMesh';
+import '@babylonjs/loaders/glTF';
 
 export default class SceneRendererBJS {
 
