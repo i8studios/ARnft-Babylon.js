@@ -1,0 +1,32 @@
+{
+    "name": "arnft-babylonjs",
+    "version": "1.0.0",
+    "description": "ARnft rendering engine based on Babylon.js",
+    "main": "src/SceneRendererBJS.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/i8studios/ARnft-Babylon.js.git"
+    },
+    "keywords": [
+        "ARnft",
+        "Babylon.js",
+        "Augmented-Reality",
+        "Image-Tracking",
+        "NFT",
+        "WebARKitLib",
+        "WebARKit",
+        "WebAR"
+    ],
+    "author": "innov8 immersive studios",
+    "bugs": {
+        "url": "https://github.com/i8studios/ARnft-Babylon.js/issues"
+    },
+    "homepage": "https://github.com/webarkit/ARnft-Babylon.js#readme",
+    "dependencies": {
+        "@babylonjs/core": "5.0.0-rc.3",
+        "@babylonjs/loaders": "5.0.0-rc.3"
+    },
+    "devDependencies": {
+        "@babylonjs/inspector": "5.0.0-rc.3"
+    }
+}
