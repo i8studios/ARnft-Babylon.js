@@ -16,6 +16,7 @@ if (process.env.NODE_ENV == 'development') {
 
 import '@babylonjs/core/Meshes/instancedMesh';
 import '@babylonjs/loaders/glTF';
+import { Texture } from "@babylonjs/core";
 
 export default class SceneRendererBJS {
 
@@ -186,6 +187,49 @@ export default class SceneRendererBJS {
         this._addRoot(root, name, visibility);
 
         return texture.video;
+    }
+
+    /**
+     * Add an image to an AR marker.
+     * 
+     * @param {string|HTMLImageElement} src image url or image element
+     * @param {string} name name of AR marker to attach to
+     * @param {number} scale scaling to apply to image
+     * @param {boolean} visibility should image stay visible when tracking lost? (default: false)
+     * @returns {Plane} plane that image is applied to
+     */
+    async addImage ({ src, name, scale = 1, visibility = false }) {
+        const root = new Mesh(name + ' Root', this.scene);
+
+        const plane = CreatePlane(name + ' Plane', { width: 16 * 60, height: 9 * 60 }, this.scene);
+        const material = new StandardMaterial(name + ' Image Material', this.scene);
+
+        let texture;
+
+        if (typeof texture == "string") {
+            texture = new Texture(src, this.scene, false, true, null);
+        } else {
+            texture = new Texture(null, this.scene, false, true, null, null, null, src);
+        }
+
+        plane.material = texture;
+
+        material.diffuseColor = Color3.Black();
+        material.emissiveTexture = texture;
+
+        plane.parent = root;
+        plane.scaling.setAll(scale);
+        plane.rotation.x = Math.PI;
+
+        this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
+            const msg = e.detail;
+            plane.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
+            plane.position.x = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
+        });
+
+        this._addRoot(root, name, visibility);
+
+        return plane;
     }
 
     inspect () {
