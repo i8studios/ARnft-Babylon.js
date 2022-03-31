@@ -206,10 +206,10 @@ export default class SceneRendererBJS {
 
         let texture;
 
-        if (typeof texture == "string") {
+        if (typeof src == "string") {
             texture = new Texture(src, this.scene, false, true, null);
         } else {
-            texture = new Texture(null, this.scene, false, true, null, null, null, src);
+            texture = new Texture(src.src, this.scene, false, true, null);
         }
 
         plane.material = texture;
