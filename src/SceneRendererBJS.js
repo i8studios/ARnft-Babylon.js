@@ -212,7 +212,7 @@ export default class SceneRendererBJS {
             texture = new Texture(src.src, this.scene, false, true, null);
         }
 
-        plane.material = texture;
+        plane.material = material;
 
         material.diffuseColor = Color3.Black();
         material.emissiveTexture = texture;
