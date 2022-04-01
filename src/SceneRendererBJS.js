@@ -54,6 +54,10 @@ export default class SceneRendererBJS {
 
     // Shared by all add* methods. Sets up the root mesh to listen to AR controller events with new matrix
     _addRoot (id, root, name, visibility) {
+
+        // Default to hidden
+        root.setEnabled(false);
+
         const found = e => {
             root.setEnabled(true);
             
