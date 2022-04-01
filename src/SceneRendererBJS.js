@@ -39,6 +39,8 @@ export default class SceneRendererBJS {
         this.camera.fovMode = Camera.FOVMODE_VERTICAL_FIXED;
 
         this.light = new HemisphericLight('light', new Vector3(0, 1, 0), this.scene);
+
+        this.listeners = {};
     }
 
     /**
@@ -51,8 +53,8 @@ export default class SceneRendererBJS {
     }
 
     // Shared by all add* methods. Sets up the root mesh to listen to AR controller events with new matrix
-    _addRoot (root, name, visibility) {
-        this.target.addEventListener(`getMatrixGL_RH-${this.uuid}-${name}`, e => {
+    _addRoot (id, root, name, visibility) {
+        const found = e => {
             root.setEnabled(true);
             
             const matrix = this._objectToMatrix(e.detail.matrixGL_RH);
@@ -62,11 +64,26 @@ export default class SceneRendererBJS {
             const position = Vector3.TransformCoordinates(Vector3.Zero(), matrix);
             root.setAbsolutePosition(position);
             // root.freezeWorldMatrix(matrix);
-        });
+        };
 
-        this.target.addEventListener(`nftTrackingLost-${this.uuid}-${name}`, e => {
+        const lost = e => {
             root.setEnabled(!!visibility);
-        });
+        };
+
+        this.target.addEventListener(`getMatrixGL_RH-${this.uuid}-${name}`, found);
+        this.target.addEventListener(`nftTrackingLost-${this.uuid}-${name}`, lost);
+
+        if (id) {
+            this.listeners[id + this.uuid + this.name] = { found, lost };
+        }
+    }
+
+    stopTracking (id, name) {
+        if (this.listeners[id]) {
+            const { found, lost } = this.listeners[id];
+            this.target.removeEventListener(`getMatrixGL_RH-${this.uuid}-${name}`, found);
+            this.target.removeEventListener(`nftTrackingLost-${this.uuid}-${name}`, lost);
+        }
     }
 
     // Convert an object with numeric keys into an array, then a Matrix
@@ -97,7 +114,7 @@ export default class SceneRendererBJS {
      * @param {boolean} visibility should model stay visible when tracking lost? (default: false)
      * @param {function} process run this funciton on imported glb data, see above (optional)
      */
-    async addModel ({ url, name, scale = 15, visibility = false, process }) {
+    async addModel ({ id, url, name, scale = 15, visibility = false, process }) {
         const data = await SceneLoader.ImportMeshAsync('', url, '', this.scene);
         
         process = process || this._processModelData;
@@ -112,13 +129,13 @@ export default class SceneRendererBJS {
         model.mesh.parent = root;
         model.mesh.scaling.setAll(scale);
 
-        this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
-            const msg = e.detail;
-            model.mesh.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
-            model.mesh.position.x = ((msg.width / msg.dpi) * 2.54 * 10) / 2;
-        });
+        // this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
+        //     const msg = e.detail;
+        //     model.mesh.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
+        //     model.mesh.position.x = ((msg.width / msg.dpi) * 2.54 * 10) / 2;
+        // });
 
-        this._addRoot(root, name, visibility);
+        this._addRoot(id, root, name, visibility);
 
         return model;
     }
@@ -161,7 +178,7 @@ export default class SceneRendererBJS {
      * @param {boolean} visibility should model stay visible when tracking lost? (default: false)
      * @returns {HTMLVideoElement} video element
      */
-    async addVideo ({ src, name, scale = 1, visibility = false }) {
+    async addVideo ({ id, src, name, scale = 1, visibility = false }) {
         const root = new Mesh(name + ' Root', this.scene);
 
         const plane = CreatePlane(name + ' Plane', { width: 16 * 60, height: 9 * 60 }, this.scene);
@@ -178,13 +195,13 @@ export default class SceneRendererBJS {
         plane.scaling.setAll(scale);
         plane.rotation.x = Math.PI;
 
-        this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
-            const msg = e.detail;
-            plane.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
-            plane.position.x = ((msg.width / msg.dpi) * 2.54 * 10) / 2;
-        });
+        // this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
+        //     const msg = e.detail;
+        //     plane.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
+        //     plane.position.x = ((msg.width / msg.dpi) * 2.54 * 10) / 2;
+        // });
 
-        this._addRoot(root, name, visibility);
+        this._addRoot(id, root, name, visibility);
 
         return texture.video;
     }
@@ -198,7 +215,7 @@ export default class SceneRendererBJS {
      * @param {boolean} visibility should image stay visible when tracking lost? (default: false)
      * @returns {Plane} plane that image is applied to
      */
-    async addImage ({ src, name, scale = 1, visibility = false }) {
+    async addImage ({ id, src, name, scale = 1, visibility = false }) {
         const root = new Mesh(name + ' Root', this.scene);
 
         const plane = CreatePlane(name + ' Plane', { width: 16 * 60, height: 9 * 60 }, this.scene);
@@ -221,13 +238,13 @@ export default class SceneRendererBJS {
         plane.scaling.setAll(scale);
         plane.rotation.x = Math.PI;
 
-        this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
-            const msg = e.detail;
-            plane.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
-            plane.position.x = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
-        });
+        // this.target.addEventListener(`getNFTData-${this.uuid}-${name}`, e => {
+        //     const msg = e.detail;
+        //     plane.position.y = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
+        //     plane.position.x = ((msg.height / msg.dpi) * 2.54 * 10) / 2;
+        // });
 
-        this._addRoot(root, name, visibility);
+        this._addRoot(id, root, name, visibility);
 
         return plane;
     }
