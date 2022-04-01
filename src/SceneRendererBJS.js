@@ -74,13 +74,14 @@ export default class SceneRendererBJS {
         this.target.addEventListener(`nftTrackingLost-${this.uuid}-${name}`, lost);
 
         if (id) {
-            this.listeners[id + this.uuid + this.name] = { found, lost };
+            this.listeners[id + this.uuid + name] = { found, lost };
         }
     }
 
     stopTracking (id, name) {
-        if (this.listeners[id]) {
-            const { found, lost } = this.listeners[id];
+        const listeners = this.listeners[id + this.uuid + name];
+        if (listeners) {
+            const { found, lost } = listeners;
             this.target.removeEventListener(`getMatrixGL_RH-${this.uuid}-${name}`, found);
             this.target.removeEventListener(`nftTrackingLost-${this.uuid}-${name}`, lost);
         }
